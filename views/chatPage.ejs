@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .chat-header {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .message-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f5f5f5;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .user-message {
+            background-color: #5bc0de;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .user-message .message {
+            color: #fff;
+        }
+
+        .input-container {
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #5bc0de;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Chat Room
+        </div>
+
+        <div class="message-container user-message">
+            <div class="message">
+                You are now connected to the chat room.
+            </div>
+        </div>
+
+        <div class="message-container">
+            <div class="message">
+                User 1: Hello, how's it going?
+            </div>
+        </div>
+
+        <div class="message-container">
+            <div class="message">
+                User 2: Hi there! It's going great.
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function startChat(userId) {
+            socket.emit('startChat', { userId });
+        }
+
+        // Event listener for sending a message
+        function sendMessage(room, message) {
+            socket.emit('sendMessage', { room, message });
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value;
+            const socket = io();
+            const userId = getQueryParam('userId');
+
+            startChat(userId);
+
+            // Event listener for receiving a message
+            socket.on('messageReceived', ({ message }) => {
+                // Handle displaying the received message in the chat interface
+            });
+
+            // Event listener for chat started
+            socket.on('chatStarted', ({ room }) => {
+                // Handle displaying the chat interface and room name
+            });
+
+            // Simulate sending the message to the server and displaying it
+            if (message.trim() !== "") {
+                sendMessage(room, message);
+
+                socket.on('chat message', function(message) {
+                    const messageContainer = document.createElement("div");
+                messageContainer.className = "message-container user-message";
+                const messageElement = document.createElement("div");
+                messageElement.className = "message";
+                messageElement.innerText = "You: " + message;
+                messageContainer.appendChild(messageElement);
+                document.querySelector(".chat-container").appendChild(messageContainer);
+                });
+
+                // const messageContainer = document.createElement("div");
+                // messageContainer.className = "message-container user-message";
+                // const messageElement = document.createElement("div");
+                // messageElement.className = "message";
+                // messageElement.innerText = "You: " + message;
+                // messageContainer.appendChild(messageElement);
+                // document.querySelector(".chat-container").appendChild(messageContainer);
+
+                messageInput.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
