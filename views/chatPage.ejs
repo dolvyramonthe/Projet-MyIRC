@@ -12,11 +12,6 @@
         color: #333;
         }
 
-        /* body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        } */
-
         .chat-container {
             max-width: 600px;
             margin-top: 100px;
@@ -109,6 +104,7 @@
         let senderName;
         let senderId;
         let displayMsg;
+        let messagesList = [];
 
         function startChat(userId) {
             socket.emit('startChat', { userId });
@@ -143,6 +139,8 @@
                     messageContainer.className = "message-container message";
                     displayMsg = senderName + ': ' + msg;
                 }
+
+                messagesList.push(displayMsg);
 
                 const messageElement = document.createElement("div");
                 

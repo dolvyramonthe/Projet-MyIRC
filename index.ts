@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import User from './interfaces/User';
 import UserData from './interfaces/UserData'
 import Group from './interfaces/Group';
+import MessageTab from './interfaces/MessageTab';
 
 declare module 'express-session' {
     interface SessionData {
@@ -25,6 +26,9 @@ const usersFile: User[] = JSON.parse(fs.readFileSync('./data/users.json', 'utf-8
 let userData: UserData[] = [];
 let usersData: UserData[] = [];
 let currentUserId: number = 0;
+let messagesTab: MessageTab[] = [];
+let messageTab: MessageTab = {sender: '', message: ''};
+let messagesTabFille: string = '';
 
 if(usersFile) {
   for (const iterator of usersFile) {
@@ -118,9 +122,9 @@ io.on('connection', (socket) => {
     }
     
     if(currentUserId < userId) {
-      roomName = `private-group-${currentUser}-->${user}`;
+      roomName = `private-group-${currentUser}-${user}`;
     } else {
-      roomName = `private-group-${user}-->${currentUser}`;
+      roomName = `private-group-${user}-${currentUser}`;
     }
   
     socket.join(roomName);
@@ -130,9 +134,32 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendMessage', ({ room, message, sender, senderN }) => {
+    messagesTabFille = room;
+    messageTab.sender = senderN;
+    messageTab.message = message;
+    messagesTab.push(messageTab);
+
     io.to(room).emit('messageReceived', { message, sender, senderN });
   });  
 });
+
+console.log(messagesTabFille, messagesTab);
+
+if(messagesTabFille.length > 0) {
+  // try {
+  //   messagesTab = JSON.parse(fs.readFileSync('./logs/' + messagesTabFille + '.log', 'utf-8')) || [];
+  // } catch (error) {
+  //   console.error(error);
+  // }
+
+  const data: string = JSON.stringify(messagesTab);
+
+  try {
+    fs.writeFileSync('./logs/' + messagesTabFille + '.log', data, 'utf-8');
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 app.use((req, res, next) => {
   res.status(404).sendFile(__dirname + '/views/notFound.html');
