@@ -3,14 +3,26 @@
 <head>
     <title>Chat Room</title>
     <style>
-        body {
+         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        /* base style */
+        * {
+        margin: 0;
+        font-family: "Quicksand";
+        color: #333;
+        }
+
+        /* body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-        }
+        } */
 
         .chat-container {
             max-width: 600px;
-            margin: 0 auto;
+            margin-top: 100px;
+            margin-bottom: 0;
+            margin-left: auto;
+            margin-right: auto;
             padding: 20px;
             background-color: #fff;
             border: 1px solid #ccc;
@@ -20,7 +32,7 @@
         .chat-header {
             text-align: center;
             font-size: 24px;
-            color: #333;
+            color: #f1356d;
         }
 
         .message-container {
@@ -34,16 +46,18 @@
         .message {
             font-size: 16px;
             color: #333;
+            text-align: left;
         }
 
         .user-message {
-            background-color: #5bc0de;
+            background-color: #f481a3;;
             color: #fff;
             border-radius: 5px;
         }
 
         .user-message .message {
             color: #fff;
+            text-align: right;
         }
 
         .input-container {
@@ -58,8 +72,9 @@
         }
 
         button {
+            width: 17%;
             padding: 5px 10px;
-            background-color: #5bc0de;
+            background-color: #f1356d;;
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -74,20 +89,8 @@
         </div>
 
         <div class="message-container user-message">
-            <div class="message">
-                You are now connected to the chat room.
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                User 1: Hello, how's it going?
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                User 2: Hi there! It's going great.
+            <div class="message js-chat-group">
+                you are now connected to the chat room.
             </div>
         </div>
 
@@ -99,63 +102,69 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
+        var chatRoom = ''; 
+        let msg = '';
+        const connectedUserId = Number('<%= connectedUserId %>');
+        const connectedUserName = '<%= connectedUserName %>';
+        let senderName;
+        let senderId;
+        let displayMsg;
 
         function startChat(userId) {
             socket.emit('startChat', { userId });
         }
 
-        // Event listener for sending a message
-        function sendMessage(room, message) {
-            socket.emit('sendMessage', { room, message });
+        const userId = localStorage.getItem('userId');
+
+        startChat(userId);
+
+        socket.on('chatStarted', ({ room }) => {
+            chatRoom = room;
+        });
+
+        if(chatRoom.trim() !== "") {
+            let chatGroup = document.querySelector('.js-chat-group');
+
+            chatGroup.innerHTML = `You are now connected to the ${chatRoom} room.`;
         }
+        
+        socket.on('messageReceived', ({ message, sender, senderN }) => {
+            senderId = sender;
+            senderName = senderN;
+            msg = message;
+
+            if (msg.trim() !== "") {
+                const messageContainer = document.createElement("div");
+
+                if(connectedUserId === senderId) {
+                    messageContainer.className = "message-container user-message";
+                    displayMsg = 'You: ' + msg;
+                } else {
+                    messageContainer.className = "message-container message";
+                    displayMsg = senderName + ': ' + msg;
+                }
+
+                const messageElement = document.createElement("div");
+                
+                messageElement.className = "message";
+                messageElement.innerText = displayMsg;
+                messageContainer.appendChild(messageElement);
+                document.querySelector(".chat-container").appendChild(messageContainer);
+            }
+        });
 
         function sendMessage() {
             const messageInput = document.getElementById("message");
             const message = messageInput.value;
-            const socket = io();
-            const userId = getQueryParam('userId');
 
-            startChat(userId);
-
-            // Event listener for receiving a message
-            socket.on('messageReceived', ({ message }) => {
-                // Handle displaying the received message in the chat interface
-            });
-
-            // Event listener for chat started
-            socket.on('chatStarted', ({ room }) => {
-                // Handle displaying the chat interface and room name
-            });
-
-            // Simulate sending the message to the server and displaying it
-            if (message.trim() !== "") {
-                sendMessage(room, message);
-
-                socket.on('chat message', function(message) {
-                    const messageContainer = document.createElement("div");
-                messageContainer.className = "message-container user-message";
-                const messageElement = document.createElement("div");
-                messageElement.className = "message";
-                messageElement.innerText = "You: " + message;
-                messageContainer.appendChild(messageElement);
-                document.querySelector(".chat-container").appendChild(messageContainer);
-                });
-
-                // const messageContainer = document.createElement("div");
-                // messageContainer.className = "message-container user-message";
-                // const messageElement = document.createElement("div");
-                // messageElement.className = "message";
-                // messageElement.innerText = "You: " + message;
-                // messageContainer.appendChild(messageElement);
-                // document.querySelector(".chat-container").appendChild(messageContainer);
+            if (chatRoom) {
+                socket.emit('sendMessage', { room: chatRoom, message, sender: connectedUserId, senderN: connectedUserName });
 
                 messageInput.value = "";
+            } else {
+                console.log('No chat room found.')
             }
+
         }
     </script>
 </body>

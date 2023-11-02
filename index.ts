@@ -23,6 +23,8 @@ const port = 3000;
 const chatGroups: Group[] = JSON.parse(fs.readFileSync('./data/groups.json', 'utf-8'));
 const usersFile: User[] = JSON.parse(fs.readFileSync('./data/users.json', 'utf-8'));
 let userData: UserData[] = [];
+let usersData: UserData[] = [];
+let currentUserId: number = 0;
 
 if(usersFile) {
   for (const iterator of usersFile) {
@@ -48,16 +50,6 @@ app.use(
   })
 );
 
-// Use express-socket.io-session to handle sessions for socket.io
-// io.use(
-//   expressSocketIoSession(session, {
-//     autoSave: true,
-//     resave: false, // Add this line to configure resave
-//     saveUninitialized: true, // Add this line to configure saveUninitialized
-//     secret: 'verySecret', // Add this line to configure the secret
-//   })
-// );
-
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/home.html');
 });
@@ -67,11 +59,20 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/chatPage', (req, res) => {
-  res.render('chatPage', { chatGroups, userData });
+  if(req.session.user) {
+    const connectedUserId: any = req.session.user.id;
+    const connectedUserName: any = req.session.user.username;
+
+    res.render('chatPage', { chatGroups, usersData, connectedUserId, connectedUserName });
+  }
 });
 
 app.get('/chat', (req, res) => {
-  res.render('chat', { chatGroups, userData });
+  if(req.session.user) {
+    const connectedUser: any = req.session.user;
+
+    res.render('chat', { chatGroups, usersData, connectedUser });
+  }
 });
 
 app.post('/login', (req, res) => {
@@ -90,6 +91,8 @@ app.post('/login', (req, res) => {
   
     if (username === user.username && password === user.password) {
         req.session.user = { id: user.id, username: user.username };
+        currentUserId = req.session.user.id;
+        usersData = userData.filter((item) => item.id !== currentUserId);
         res.redirect('/chat');
     } else {
       res.send('Login failed. Please try again.');
@@ -97,21 +100,37 @@ app.post('/login', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  // Handle chat functionality here
   socket.on('startChat', ({ userId }) => {
-    const handshakeWithSession = socket.handshake as any; // Use 'any' type for type assertion
-    const currentUserId = handshakeWithSession.session.user.id;
-    // const currentUserId = socket.request.session.user.id;
+    let roomName: string = '';
+    let currentUser: string = '';
+    let user: string = '';
+
+    for (const item of userData) {
+      if(item.id === currentUserId) {
+        currentUser = item.username;
+      }
+    }
+
+    for (const item of userData) {
+      if(item.id === parseInt(userId,10)) {
+        user = item.username;
+      }
+    }
+    
+    if(currentUserId < userId) {
+      roomName = `private-group-${currentUser}-->${user}`;
+    } else {
+      roomName = `private-group-${user}-->${currentUser}`;
+    }
   
-    const roomName = `private-${currentUserId}-${userId}`;
     socket.join(roomName);
-  
+
     socket.emit('chatStarted', { room: roomName });
     io.to(userId).emit('chatStarted', { room: roomName });
   });
 
-  socket.on('sendMessage', ({ room, message }) => {
-    io.to(room).emit('messageReceived', { message });
+  socket.on('sendMessage', ({ room, message, sender, senderN }) => {
+    io.to(room).emit('messageReceived', { message, sender, senderN });
   });  
 });
 

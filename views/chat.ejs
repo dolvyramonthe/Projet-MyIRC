@@ -56,7 +56,7 @@
 
         <h2>Users</h2>
         <ul>
-            <% userData.forEach(user => { %>
+            <% usersData.forEach(user => { %>
                 <li class="js-user" data-user-id="<%= user.id %>">
                     <a href="#" data-user-id="<%= user.id %>"><%= user.username %></a>
                 </li>
@@ -68,11 +68,14 @@
 
         userList.forEach(user => {
             user.addEventListener('click', (event) => {
-                event.preventDefault(); // Prevent the default link behavior
+                event.preventDefault();
     
                 const userId = user.getAttribute('data-user-id');
+                localStorage.setItem('userId', userId);
+
+                window.location.href = '/chatPage';
     
-                window.location.href = `/chatPage?userId=${userId}`;
+                // window.location.href = `/chatPage?userId=${userId}`;
             });
         });
     </script>
