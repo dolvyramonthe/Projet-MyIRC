@@ -38,6 +38,16 @@
             margin-left: 25%;
         }
 
+        .chat-groups-container {
+            border: 2px;
+            border-color: #333;
+        }
+
+        .chat-users-container {
+            border: 2px;
+            border-color: #333;
+        }
+
         .chat-groups-users a {
         text-decoration: none;
         }
@@ -47,21 +57,27 @@
     <div class="chat-groups-users">
         <h1>Welcome to the Chat Page</h1></br>
         <h1>Chose a Group to chat in or a User to chat with</h1></br>
-        <h2>Chat Groups</h2>
-        <ul>
-            <% chatGroups.forEach(group => { %>
-                <li class="js-group" data-group-id="<%= group.id %>"><%= group.desc %></li>
-            <% }); %>
-        </ul>
-
-        <h2>Users</h2>
-        <ul>
-            <% usersData.forEach(user => { %>
-                <li class="js-user" data-user-id="<%= user.id %>">
-                    <a href="#" data-user-id="<%= user.id %>"><%= user.username %></a>
-                </li>
-            <% }); %>
-        </ul>
+        <div class="chat-groups-container">
+            <h2>Chat Groups</h2>
+            <div>
+                <% chatGroups.forEach(group => { %>
+                    <div class="js-group" data-group-id="<%= group.id %>">
+                        <a href="#" data-group-id="<%= group.id %>"><%= group.desc %></a>
+                    </div>
+                <% }); %>
+                </div>
+        </div>
+        
+        <div class="chat-users-container">
+            <h2>Users</h2>
+            <div>
+                <% usersData.forEach(user => { %>
+                    <div class="js-user" data-user-id="<%= user.id %>">
+                        <a href="#" data-user-id="<%= user.id %>"><%= user.username %></a>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
     </div>
     <script>
         const userList = document.querySelectorAll('.js-user');
@@ -74,8 +90,19 @@
                 localStorage.setItem('userId', userId);
 
                 window.location.href = '/chatPage';
+            });
+        });
+
+        const groupList = document.querySelectorAll('.js-group');
+
+        userList.forEach(group => {
+            user.addEventListener('click', (event) => {
+                event.preventDefault();
     
-                // window.location.href = `/chatPage?userId=${userId}`;
+                const groupId = group.getAttribute('data-user-id');
+                localStorage.setItem('groupId', groupId);
+
+                window.location.href = '/groupChatPage';
             });
         });
     </script>

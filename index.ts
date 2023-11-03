@@ -68,6 +68,19 @@ app.get('/chatPage', (req, res) => {
     const connectedUserName: any = req.session.user.username;
 
     res.render('chatPage', { chatGroups, usersData, connectedUserId, connectedUserName });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/groupChatPage', (req, res) => {
+  if(req.session.user) {
+    const connectedUserId: any = req.session.user.id;
+    const connectedUserName: any = req.session.user.username;
+
+    res.render('groupChatPage', { chatGroups, usersData, connectedUserId, connectedUserName });
+  } else {
+    res.redirect('/');
   }
 });
 
@@ -76,6 +89,8 @@ app.get('/chat', (req, res) => {
     const connectedUser: any = req.session.user;
 
     res.render('chat', { chatGroups, usersData, connectedUser });
+  } else {
+    res.redirect('/');
   }
 });
 
@@ -128,8 +143,16 @@ io.on('connection', (socket) => {
     }
   
     socket.join(roomName);
+    messagesTabFille = roomName;
 
-    socket.emit('chatStarted', { room: roomName });
+    if(fs.existsSync('./logs/' + messagesTabFille + '.log')) {
+      messagesTab = JSON.parse(fs.readFileSync('./logs/' + messagesTabFille + '.log', 'utf-8'));
+    } else {
+      messagesTab = [];
+    }
+
+    socket.emit('chatStarted', { room: roomName, oldMessages: messagesTab });
+    console.log(messagesTab);
     io.to(userId).emit('chatStarted', { room: roomName });
   });
 
@@ -139,27 +162,20 @@ io.on('connection', (socket) => {
     messageTab.message = message;
     messagesTab.push(messageTab);
 
+    if(messagesTabFille.length > 0) {
+    
+      const data: string = JSON.stringify(messagesTab);
+    
+      try {
+        fs.writeFileSync('./logs/' + messagesTabFille + '.log', data, 'utf-8');
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     io.to(room).emit('messageReceived', { message, sender, senderN });
   });  
 });
-
-console.log(messagesTabFille, messagesTab);
-
-if(messagesTabFille.length > 0) {
-  // try {
-  //   messagesTab = JSON.parse(fs.readFileSync('./logs/' + messagesTabFille + '.log', 'utf-8')) || [];
-  // } catch (error) {
-  //   console.error(error);
-  // }
-
-  const data: string = JSON.stringify(messagesTab);
-
-  try {
-    fs.writeFileSync('./logs/' + messagesTabFille + '.log', data, 'utf-8');
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 app.use((req, res, next) => {
   res.status(404).sendFile(__dirname + '/views/notFound.html');
