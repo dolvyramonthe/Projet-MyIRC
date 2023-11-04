@@ -117,13 +117,13 @@
         let messagesList = [];
         let oldMessagestab = [];
 
-        function startChat(userId) {
-            socket.emit('startChat', { userId });
+        function startChat(groupId) {
+            socket.emit('startChat', { groupId });
         }
 
-        const userId = localStorage.getItem('userId');
+        const userId = localStorage.getItem('groupId');
 
-        startChat(userId);
+        startChat(groupId);
 
         socket.on('chatStarted', ({ room, oldMessages }) => {
             chatRoom = room;

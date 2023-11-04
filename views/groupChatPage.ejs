@@ -117,15 +117,15 @@
         let messagesList = [];
         let oldMessagestab = [];
 
-        function startChat(userId) {
-            socket.emit('startChat', { userId });
+        function startChat(groupId) {
+            socket.emit('startChatGroup', { groupId });
         }
 
-        const userId = localStorage.getItem('userId');
+        const groupId = localStorage.getItem('groupId');
 
-        startChat(userId);
+        startChat(groupId);
 
-        socket.on('chatStarted', ({ room, oldMessages }) => {
+        socket.on('chatGroupStarted', ({ room, oldMessages }) => {
             chatRoom = room;
             console.log(oldMessages);
                 if (oldMessages && Array.isArray(oldMessages)) {
@@ -153,7 +153,7 @@
                 }
         });
         
-        socket.on('messageReceived', ({ message, sender, senderN }) => {
+        socket.on('messageGroupReceived', ({ message, sender, senderN }) => {
             senderId = sender;
             senderName = senderN;
             msg = message;
@@ -186,7 +186,7 @@
             const message = messageInput.value;
 
             if (chatRoom) {
-                socket.emit('sendMessage', { room: chatRoom, message, sender: connectedUserId, senderN: connectedUserName });
+                socket.emit('sendGroupMessage', { room: chatRoom, message, sender: connectedUserId, senderN: connectedUserName });
 
                 messageInput.value = "";
             } else {

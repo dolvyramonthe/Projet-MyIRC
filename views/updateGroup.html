@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Group Page</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+            /* base style */
+            * {
+            margin: 0;
+            font-family: "Quicksand";
+            color: #333;
+            }
+            /*Login Page styling*/
+            .login-section {
+            max-width: 400px;
+            margin-top: 100px;
+            margin-bottom: 0;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            }
+
+            .login-section label {
+            text-align: left;
+            display: block;
+            }
+
+            .login-section h2 {
+            font-size: 20px;
+            color: #f1356d;
+            margin-bottom: 30px;
+            }
+
+            .login-section input {
+            width: 100%;
+            padding: 6px 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            display: block;
+            }
+
+            .login-section button {
+            background-color: #f1356d;
+            color: #fff;
+            font-size: 20px;
+            width: 50%;
+            border: 0;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            }
+        </style>
+    </head>
+  <body>
+    <div class="login-section">
+        <h2>Update Group</h2>
+        <form method="post" action="/updateGroup">
+          <label for="oldgroup">Old Group description:</label>
+          <input type="text" class="js-old-group" id="oldgroup" name="username" required><br><br>
+          <label for="newgroup">New group description:</label>
+          <input type="text" id="newgroup" name="username" required><br><br>
+          <button type="submit">Update</button>
+        </form>
+    </div>
+
+    <script>
+      const inputElement = document.getElementById('oldgroup');
+      const oldgroupDesc = localStorage.getItem('groupToUpdate');
+
+      if (inputElement && oldgroupDesc !== null) {
+          inputElement.value = oldgroupDesc;
+      }
+  </script>
+  </body>
+</html>

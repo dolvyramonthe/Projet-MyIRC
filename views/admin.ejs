@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat Groups and Users</title>
+    <title>Admin Page</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
@@ -24,13 +24,13 @@
         .chat-groups-users h1 {
         font-size: 20px;
         color: #f1356d;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
         }
 
         .chat-groups-users h2 {
         font-size: 20px;
         color: #f1356d;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
         }
 
         .chat-groups-users ul {
@@ -39,12 +39,12 @@
         }
 
         .chat-groups-users .chat-groups-container {
-            border: 5px;
+            border: 2px;
             border-color: #7e7b7b;
         }
 
         .chat-groups-users .chat-users-container {
-            border: 5px;
+            border: 2px;
             border-color: #7e7b7b;
         }
 
@@ -55,14 +55,14 @@
 </head>
 <body>
     <div class="chat-groups-users">
-        <h1>Welcome to the Chat Page</h1></br>
-        <h1>Chose a Group to chat in or a User to chat with</h1></br>
+        <h1>Welcome to the Admin Page</h1></br>
+        <h1>Chose a Group or a User to update</h1></br>
         <div class="chat-groups-container">
             <h2>Chat Groups</h2>
             <div>
                 <% chatGroups.forEach(group => { %>
-                    <div class="js-group" data-group-id="<%= group.id %>">
-                        <a href="#" data-group-id="<%= group.id %>"><%= group.desc %></a>
+                    <div class="js-group" data-group-desc="<%= group.desc %>">
+                        <a href="#" data-group-desc="<%= group.desc %>"><%= group.desc %></a>
                     </div>
                 <% }); %>
                 </div>
@@ -72,8 +72,8 @@
             <h2>Users</h2>
             <div>
                 <% usersData.forEach(user => { %>
-                    <div class="js-user" data-user-id="<%= user.id %>">
-                        <a href="#" data-user-id="<%= user.id %>"><%= user.username %></a>
+                    <div class="js-user" data-user-id="<%= user.username %>">
+                        <a href="#" data-user-id="<%= user.username %>"><%= user.username %></a>
                     </div>
                 <% }); %>
             </div>
@@ -87,10 +87,10 @@
             user.addEventListener('click', (event) => {
                 event.preventDefault();
     
-                const userId = user.getAttribute('data-user-id');
-                localStorage.setItem('userId', userId);
+                const userIdToUpdate = user.getAttribute('data-user-id');
+                localStorage.setItem('userIdToUpdate', userIdToUpdate);
 
-                window.location.href = '/chatPage';
+                window.location.href = '/updatePassword';
             });
         });
 
@@ -98,10 +98,10 @@
             group.addEventListener('click', (event) => {
                 event.preventDefault();
     
-                const groupId = group.getAttribute('data-group-id');
-                localStorage.setItem('groupId', groupId);
+                const groupToUpdate = group.getAttribute('data-group-desc');
+                localStorage.setItem('groupToUpdate', groupToUpdate);
 
-                window.location.href = '/groupChatPage';
+                window.location.href = '/updateGroup';
             });
         });
     </script>

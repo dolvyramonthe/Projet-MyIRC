@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        /* base style */
+        * {
+        margin: 0;
+        font-family: "Quicksand";
+        color: #333;
+        }
+
+        .chat-groups-users {
+        max-width: 400px;
+        margin-top: 100px;
+        margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        }
+
+        .chat-groups-users h1 {
+        font-size: 20px;
+        color: #f1356d;
+        margin-bottom: 30px;
+        }
+
+        .chat-groups-users h2 {
+        font-size: 20px;
+        color: #f1356d;
+        margin-bottom: 30px;
+        }
+
+        .chat-groups-users ul {
+            width: 50%;
+            margin-left: 25%;
+        }
+
+        .chat-groups-container {
+            border: 2px;
+            border-color: #333;
+        }
+
+        .chat-users-container {
+            border: 2px;
+            border-color: #333;
+        }
+
+        .chat-groups-users a {
+        text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-groups-users">
+        <h1>Chose a Group to chat in or a User to chat with</h1></br>
+        <h2>Chat Groups</h2>
+        <ul id="chatGroups">
+            <li>Group 1</li>
+            <li>Group 2</li>
+            <li>Group 3</li>
+        </ul></br>
+
+        <h2>Users</h2>
+        <ul id="users">
+            <li>User 1</li>
+            <li>User 2</li>
+            <li>User 3</li>
+        </ul>
+    </div>
+    <script>
+        const userList = document.querySelectorAll('.js-user');
+    
+        userList.forEach(user => {
+            user.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent the default link behavior
+    
+                const userId = user.getAttribute('data-user-id');
+    
+                // Redirect to the chat page with user data
+                window.location.href = `/chatPage?userId=${userId}`;
+            });
+        });
+    </script>
+</body>
+</html>
